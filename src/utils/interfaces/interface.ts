@@ -1,7 +1,7 @@
 import { Router, Request } from 'express';
 
 export interface UserInterface {
-    id: number;
+    id?: number;
     firstname?: string;
     lastname?: string;
     password?: string
