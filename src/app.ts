@@ -9,6 +9,7 @@ import './data-source';
 import { Controller } from './utils/interfaces/interface';
 import ErrorMiddleware from './middleware/errorHandler';
 import { NoEntryError } from './utils/requestUtils/ApiError';
+import { SuccessMsgResponse } from './utils/requestUtils/ApiResponse';
 
 class App {
     public express: Application;
@@ -35,6 +36,10 @@ class App {
         controllers.forEach((controller) => {
             this.express.use('/api/v1', controller.router);
         })
+
+        this.express.use('/', (req, res) => {
+            return new SuccessMsgResponse(`Welcome to my simple blog API.`).send(res);
+        });
 
         this.express.use('*', (req, res, next) => {
             next(new NoEntryError(`Could not find ${req.originalUrl} on this server.`));
