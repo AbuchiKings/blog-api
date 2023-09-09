@@ -3,6 +3,13 @@ import { Users, } from "../entity/user"
 import { UserInterface } from '../utils/interfaces/interface'
 
 const UserRepository = AppDataSource.getRepository(Users);
+type newUser = {
+    firstname: string,
+    lastname: string,
+    email: string,
+    password: string,
+    createdAt?: Date,
+}
 
 export async function findFieldsById(id: number, ...fields: string[]): Promise<Users | null> {
     let select: Record<string, unknown> = {};
@@ -28,7 +35,7 @@ export async function findByEmail(email: string, fields?: string[]): Promise<Use
     });
 }
 
-export async function create(user: UserInterface): Promise<Users> {
+export async function create(user: newUser): Promise<Users> {
     const now = new Date();
     const data = UserRepository.create(user);
     return UserRepository.save(data);
