@@ -21,7 +21,7 @@ export class Posts implements PostInterface {
     @UpdateDateColumn({ type: "timestamp" })
     updatedAt: Date
 
-    @ManyToOne(() => Users, { cascade: ["remove"] })
+    @ManyToOne(() => Users, { cascade: ["remove"],  eager: true,})
     @Index()
     user: Users
 }

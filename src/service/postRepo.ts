@@ -46,7 +46,7 @@ export async function findeAllPosts(filter?: Record<string, unknown>, fields?: s
     const skip = (page - 1) * limit;
     return PostRepository.find({
         where: filter,
-        select, skip, take: limit
+        select: { ...select, user: { email: false, createdAt: false }}, skip, take: limit
     });
 }
 

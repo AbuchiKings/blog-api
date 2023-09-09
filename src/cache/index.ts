@@ -1,15 +1,17 @@
 import dotenv from 'dotenv'
 
 import { createClient } from 'redis';
-import util from 'util';
 dotenv.config();
 const client = createClient({
-    url: process.env.REDIS_URL || 'redis://localhost:6379',
+    url: process.env.REDIS_URL,
     socket: {
         reconnectStrategy: retries => Math.min(retries * 50, 1000)
     },
 });
 
+(async () => {
+    await client.connect();
+})();
 
 client.on('connect', () => {
     // eslint-disable-next-line

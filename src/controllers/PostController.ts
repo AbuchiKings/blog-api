@@ -9,7 +9,7 @@ import { ProtectedRequest } from '../utils/interfaces/interface'
 
 
 import { verifyToken } from "../middleware/auth";
-import { validationHandler } from '../middleware/validator';
+import { validateGetall, validatePost, validatePostUpdate, validationHandler } from '../middleware/validator';
 
 class PostController implements Controller {
     public path = '/posts';
@@ -21,8 +21,8 @@ class PostController implements Controller {
 
     private initializeRoutes(): void {
         this.router.route(this.path,)
-            .post(verifyToken, validationHandler, this.create)
-            .get(verifyToken, validationHandler, this.getAll)
+            .post(verifyToken, validatePost, validationHandler, this.create)
+            .get(verifyToken, validateGetall, validationHandler, this.getAll)
 
         this.router.route(`${this.path}/:id`)
             .patch(verifyToken, validationHandler, this.update)
@@ -37,8 +37,7 @@ class PostController implements Controller {
         try {
             const { title, body } = req.body;
             const data = await createPost({ title, body, user: req.user });
-            console.log(data);
-            return new CreatedSuccessResponse('User successfully created.', data, 1).send(res);
+            return new CreatedSuccessResponse('Post successfully created.', data, 1).send(res);
         } catch (error) {
             return next(error)
         }
@@ -49,7 +48,7 @@ class PostController implements Controller {
             let page = req.query.page ? Number(req.query.page) : undefined;
             let limit = req.query.limit ? Number(req.query.limit) : undefined;
 
-            const data = await findeAllPosts({}, [], limit, page)
+            const data = await findeAllPosts({}, ['id', 'title', 'body', 'createdAt', 'updatedAt'], limit, page)
             return new SuccessResponse('Posts successfully retrieved.', data, data.length).send(res);
         } catch (error) {
             return next(error)
@@ -71,7 +70,7 @@ class PostController implements Controller {
             const data = await updateUserPost({ id: parseInt(req.params.id), userId: getUserId(req) }, update);
             console.log(data);
             if (!data) throw new NotFoundError('Post not found')
-            return new SuccessResponse('Users successfully retrieved.', data, 1).send(res);
+            return new SuccessResponse('Post was successfully updated.', data, 1).send(res);
         } catch (error) {
             return next(error)
         }
@@ -82,7 +81,7 @@ class PostController implements Controller {
             const data = await deletePost({ id: parseInt(req.params.id), userId: getUserId(req) });
             console.log(data);
             if (!data) throw new NotFoundError('Post not found')
-            return new SuccessResponse('Users successfully retrieved.', null, 0).send(res);
+            return new SuccessResponse('Post was successfully deleted.', null, 0).send(res);
         } catch (error) {
             return next(error)
         }
@@ -95,7 +94,7 @@ class PostController implements Controller {
 
             const data = await searchPosts(req.params.title, [], limit, page);
             console.log(data);
-            return new SuccessResponse('Users successfully retrieved.', data, data.length).send(res);
+            return new SuccessResponse('Posts successfully retrieved.', data, data.length).send(res);
         } catch (error) {
             return next(error)
         }

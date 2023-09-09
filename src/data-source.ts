@@ -1,9 +1,8 @@
 import dotenv from 'dotenv';
 import { DataSource } from "typeorm";
 
-import { Posts } from "../../rise/src/entity/post"
-import { Users, Login } from "../../rise/src/entity/user"
-import { Comments } from "../../rise/src/entity/comment"
+import { Posts } from "./entity/post"
+import { Users } from "./entity/user"
 
 dotenv.config();
 
@@ -17,7 +16,7 @@ const AppDataSource = new DataSource({
     username: DB_USER,
     password: DB_PASS,
     database: DB_NAME,
-    entities: [Posts, Users, Comments, Login],
+    entities: [Posts, Users],
     synchronize: true,
     ...(process.env.NODE_ENV === 'development' ? { logging: ["query", "error"], } : {})
 })

@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
-import { body, param, validationResult } from 'express-validator';
+import { body, param, query, validationResult } from 'express-validator';
 
 import { UnprocessibleEntityError } from '../utils/requestUtils/ApiError';
 
@@ -22,34 +22,50 @@ export const validateIdParam = (...ids: string[]) => {
         .withMessage('One or more id parameters are invalid.');
 };
 
-export const validateLogin = [
-    body('password')
-        .exists({ checkFalsy: true, checkNull: true })
-        .withMessage('Please enter your password.')
-        .isLength({ min: 8, max: 200 })
-        .withMessage('Password must have between 8 and 200 characters.'),
-    body('email')
-        .exists({ checkFalsy: true, checkNull: true })
-        .withMessage(`Email is required`)
-        .normalizeEmail({ all_lowercase: true })
-        .isEmail()
-        .withMessage('Invalid email address.')
-        .isLength({ max: 60 })
-        .withMessage('Email cannot have more than 60 characters.'),
-];
 
 export const validateCreateUser = [
-    body('name')
-        .exists()
-        .withMessage('Name is required to create a new user.')
+    body(['firstname', 'lastname'])
+        .exists().withMessage('Firstname and lastname are required.')
         .trim()
-        .isLength({ min: 2, max: 200 })
+        .isLength({ min: 2, max: 100 })
         .withMessage('Name must have a minimun of two(2) characters.')
         .escape()
         .bail()
         .matches(/^[A-Za-z]+$/)
-        .withMessage('Special characters, numbers or spaces are not allowed in name.')
-        .toLowerCase()
+        .withMessage('Special characters, numbers or spaces are not allowed in name fields.')
+        .toLowerCase(),
+    body('password')
+        .exists({ checkFalsy: true, checkNull: true })
+        .withMessage('Please enter your password.')
+        .isLength({ min: 5, max: 100 })
+        .withMessage('Password must have between 8 and 200 characters.')
+        .isStrongPassword({
+            minLength: 5,
+            minLowercase: 1,
+            minUppercase: 1,
+            minNumbers: 1
+        })
+        .withMessage('Password must contain at least One Uppercase letter, a digit and at least One lowercase letter.')
+        .bail(),
+    body('email')
+        .exists({ checkFalsy: true, checkNull: true })
+        .withMessage(`Email is required`)
+        .trim()
+        .normalizeEmail({ all_lowercase: true })
+        .isEmail()
+        .withMessage('Invalid email address.')
+        .isLength({ max: 100 })
+        .withMessage('Email cannot have more than 60 characters.')
+        .escape(),
+];
+
+export const validateLogin = [
+    body('password')
+        .exists({ checkFalsy: true, checkNull: true })
+        .withMessage('Please enter your password.')
+        .isLength({ min: 5, max: 100 })
+        .withMessage('Invalid email or password.'),
+    validateCreateUser[2],
 ];
 
 export const validatePost = [
@@ -59,29 +75,43 @@ export const validatePost = [
         .trim()
         .escape()
         .isLength({ min: 2, max: 100 })
-        .withMessage('Title should have between 2 and 100 characters.'),
+        .withMessage('Title should have between 2 and 100 characters.')
+        .toLowerCase()
+        .escape(),
+    body('body')
+        .exists({ checkFalsy: true, checkNull: true })
+        .withMessage('Body is required')
+        .trim()
+        .isLength({ min: 2, max: 1000 })
+        .withMessage('Body should have between 2 and 1000 characters.')
+        .escape(),
+];
+
+export const validatePostUpdate = [
+    body('title')
+        .optional()
+        .trim()
+        .escape()
+        .isLength({ min: 2, max: 100 })
+        .withMessage('Title should have between 2 and 100 characters.')
+        .escape(),
     body('body')
         .optional()
         .trim()
-        .escape()
-        .isLength({ min: 2, max: 100 })
-        .withMessage('Body should have between 2 and 100 characters.'),
-    validateIdParam('id')
+        .isLength({ min: 2, max: 1000 })
+        .withMessage('Body should have between 2 and 1000 characters.')
+        .escape(),
 ];
 
-export const validateComment = [
-    body('userId')
-        .exists({ checkFalsy: true, checkNull: true })
-        .withMessage('User id is required')
-        .isInt({ min: 1, max: 100000000 })
-        .withMessage('Invalid User id.'),
-    body('content')
+export const validateGetall = [
+    query('page')
         .optional()
-        .trim()
-        .escape()
-        .isLength({ min: 2, max: 100 })
-        .withMessage('Content should have between 2 and 100 characters.'),
-    validateIdParam('postId')
+        .isInt({ min: 1, max: 100000 })
+        .withMessage('Page must be a whole number not less than 1'),
+    query('limit')
+        .optional()
+        .isInt({ min: 5, max: 50 })
+        .withMessage('Limit must be a whole number between 5 and 50')
 ];
 
 export const validationHandler = (req: Request, res: Response, next: NextFunction) => {

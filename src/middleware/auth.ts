@@ -5,7 +5,6 @@ import { Response, NextFunction } from 'express';
 
 import { InternalError, AuthFailureError, BadTokenError, TokenExpiredError } from '../utils/requestUtils/ApiError';
 import { ProtectedRequest, UserInterface } from '../utils/interfaces/interface'
-import { rdGet } from '../utils/cache'
 import { getJson } from '../cache/query'
 
 const SECRET = process.env.JWT_KEY;

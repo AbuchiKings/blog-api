@@ -16,7 +16,7 @@ export class Users implements UserInterface {
     @Column()
     lastname: string
 
-    @Column()
+    @Column({ select: false })
     password: string
 
     @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)" })

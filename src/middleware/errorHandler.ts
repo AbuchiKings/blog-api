@@ -6,7 +6,7 @@ const errorHandler = (err: Error, req: Request, res: Response, next: NextFunctio
     if (err instanceof ApiError) {
         ApiError.handle(err, res);
     } else {
-        if (process.env.node_env === 'development') {
+        if (process.env.NODE_ENV === 'development') {
             console.log(err) // eslint-disable-line
             return res.status(500).send(err.message);
         }
