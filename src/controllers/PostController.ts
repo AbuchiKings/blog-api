@@ -72,7 +72,6 @@ class PostController implements Controller {
             let update = _.pick(req.body, ['title', 'body'])
             if (Object.keys(update).length < 1) throw new BadRequestError('Invalid request body.')
             const data = await updateUserPost({ id: parseInt(req.params.id), userId: getUserId(req) }, update);
-            console.log(data);
             if (!data) throw new NotFoundError('Post not found')
             return new SuccessResponse('Post successfully updated.', data, 1).send(res);
         } catch (error) {
@@ -83,7 +82,6 @@ class PostController implements Controller {
     private delete = async (req: ProtectedRequest, res: Response, next: NextFunction): Promise<Response | void> => {
         try {
             const data = await deletePost({ id: parseInt(req.params.id), userId: getUserId(req) });
-            console.log(data);
             if (!data) throw new NotFoundError('Post not found')
             return new SuccessResponse('Post was successfully deleted.', null, 0).send(res);
         } catch (error) {
@@ -97,7 +95,6 @@ class PostController implements Controller {
             let limit = req.query.limit ? Number(req.query.limit) : undefined;
 
             const data = await searchPosts(req.params.title, [], limit, page);
-            console.log(data);
             return new SuccessResponse('Posts successfully retrieved.', data, data.length).send(res);
         } catch (error) {
             return next(error)

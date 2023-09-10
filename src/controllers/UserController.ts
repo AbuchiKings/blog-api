@@ -81,7 +81,6 @@ class UserController implements Controller {
 
 function getUserData(user: Users) {
     const data = _.omit(user, ['password']);
-    console.log(data)
     return data;
 }
 export default UserController

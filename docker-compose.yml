@@ -1,0 +1,55 @@
+version: "3.8"
+services:
+  api:
+    build: .
+    volumes:
+      - ./:/home/node/app
+      - node_modules:/home/node/app/node_modules
+    env_file:
+      - ./.env
+    container_name: api
+    restart: unless-stopped
+    depends_on:
+      - redis
+    networks:
+      - blog
+  
+  redis:
+    image: redis
+    container_name: redis
+    volumes:
+      - blog_redis_data:/data
+    restart: unless-stopped
+    networks:
+      - blog
+
+  nginx:
+    image: nginx
+    networks:
+      - blog
+    restart: unless-stopped
+    depends_on:
+      - api
+
+  database:
+    image: postgres:13
+    container_name: database
+    volumes:
+      - blog_postgres_db_data:/var/lib/postgresql/data/
+    env_file:
+      - ./.env
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - 5431:5432
+    networks:
+      - blog
+
+networks:
+  blog:
+volumes:
+  node_modules:
+  blog_postgres_db_data:
+  blog_redis_data:
