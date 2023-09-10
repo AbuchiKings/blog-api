@@ -27,7 +27,7 @@ class App {
         this.express.use(cors());
         this.express.use(express.json());
         this.express.use(express.urlencoded({ extended: false }))
-        this.express.use(compression());
+        this.express.use(compression({}));
         this.express.use(preventParameterPollution());
     }
 

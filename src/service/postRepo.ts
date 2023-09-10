@@ -46,7 +46,7 @@ export async function findeAllPosts(filter?: Record<string, unknown>, fields?: s
     const skip = (page - 1) * limit;
     return PostRepository.find({
         where: filter,
-        select: { ...select, user: { email: false, createdAt: false }}, skip, take: limit
+        select: { ...select, user: { email: false, createdAt: false } }, skip, take: limit
     });
 }
 
@@ -63,6 +63,9 @@ export async function updateUserPost(filter: Record<string, unknown>, post: post
 export async function deletePost(filter: Record<string, unknown>): Promise<DeleteResult> {
     let response = await QueryBuilder.delete()
         .from(Posts)
+        .where('id = :id and "userId" = :userId', {
+            ...filter
+        })
         .returning("*").execute()
     return response.raw[0];
 }

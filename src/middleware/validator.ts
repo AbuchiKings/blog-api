@@ -38,7 +38,7 @@ export const validateCreateUser = [
         .exists({ checkFalsy: true, checkNull: true })
         .withMessage('Please enter your password.')
         .isLength({ min: 5, max: 100 })
-        .withMessage('Password must have between 8 and 200 characters.')
+        .withMessage('Password must have between 5 and 100 characters.')
         .isStrongPassword({
             minLength: 5,
             minLowercase: 1,
@@ -76,7 +76,6 @@ export const validatePost = [
         .escape()
         .isLength({ min: 2, max: 100 })
         .withMessage('Title should have between 2 and 100 characters.')
-        .toLowerCase()
         .escape(),
     body('body')
         .exists({ checkFalsy: true, checkNull: true })
@@ -88,19 +87,13 @@ export const validatePost = [
 ];
 
 export const validatePostUpdate = [
-    body('title')
-        .optional()
-        .trim()
-        .escape()
-        .isLength({ min: 2, max: 100 })
-        .withMessage('Title should have between 2 and 100 characters.')
-        .escape(),
-    body('body')
-        .optional()
-        .trim()
-        .isLength({ min: 2, max: 1000 })
-        .withMessage('Body should have between 2 and 1000 characters.')
-        .escape(),
+    validatePost[0].optional(),
+    validatePost[1].optional(),
+    param('id')
+        .exists()
+        .withMessage('Please, provide the id of post you wish to update.')
+        .isInt({ min: 1, max: 1000000000 })
+        .withMessage('Post id must be a whole number not less than 1'),
 ];
 
 export const validateGetall = [
@@ -110,8 +103,19 @@ export const validateGetall = [
         .withMessage('Page must be a whole number not less than 1'),
     query('limit')
         .optional()
-        .isInt({ min: 5, max: 50 })
+        .isInt({ min: 1, max: 50 })
         .withMessage('Limit must be a whole number between 5 and 50')
+];
+
+export const validateSearchParam = [
+    param('title')
+        .exists()
+        .withMessage('Please, provide the title of the post you wish to search for.')
+        .trim()
+        .isLength({ min: 3, max: 100 })
+        .withMessage('Your search parameter should have between 3 and 100 characters')
+        .matches(/^[A-Za-z0-9]+$/)
+        .withMessage('Special characters are not allowed in search')
 ];
 
 export const validationHandler = (req: Request, res: Response, next: NextFunction) => {

@@ -9,7 +9,10 @@ import { ProtectedRequest } from '../utils/interfaces/interface'
 
 
 import { verifyToken } from "../middleware/auth";
-import { validateGetall, validatePost, validatePostUpdate, validationHandler } from '../middleware/validator';
+import {
+    validateGetall, validateIdParam, validatePost, validateSearchParam,
+    validatePostUpdate, validationHandler
+} from '../middleware/validator';
 
 class PostController implements Controller {
     public path = '/posts';
@@ -25,12 +28,12 @@ class PostController implements Controller {
             .get(verifyToken, validateGetall, validationHandler, this.getAll)
 
         this.router.route(`${this.path}/:id`)
-            .patch(verifyToken, validationHandler, this.update)
-            .get(verifyToken, validationHandler, this.getOne)
-            .delete(verifyToken, validationHandler, this.delete)
+            .patch(verifyToken, validatePostUpdate, validationHandler, this.update)
+            .get(verifyToken, validateIdParam('id'), validationHandler, this.getOne)
+            .delete(verifyToken, validateIdParam('id'), validationHandler, this.delete)
 
         this.router.route(`${this.path}/search/:title`)
-            .get(verifyToken, validationHandler, this.search)
+            .get(verifyToken, validateSearchParam, validationHandler, this.search)
     }
 
     private create = async (req: ProtectedRequest, res: Response, next: NextFunction): Promise<Response | void> => {
@@ -67,10 +70,11 @@ class PostController implements Controller {
     private update = async (req: ProtectedRequest, res: Response, next: NextFunction): Promise<Response | void> => {
         try {
             let update = _.pick(req.body, ['title', 'body'])
+            if (Object.keys(update).length < 1) throw new BadRequestError('Invalid request body.')
             const data = await updateUserPost({ id: parseInt(req.params.id), userId: getUserId(req) }, update);
             console.log(data);
             if (!data) throw new NotFoundError('Post not found')
-            return new SuccessResponse('Post was successfully updated.', data, 1).send(res);
+            return new SuccessResponse('Post successfully updated.', data, 1).send(res);
         } catch (error) {
             return next(error)
         }
